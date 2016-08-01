@@ -7,10 +7,52 @@
 #include "PRDemoDlg.h"
 #include "afxdialogex.h"
 
+#include "easypr.h"
+#include "easypr/util/switch.hpp"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
+using namespace easypr;
+int test_plate_recognize() {
+	cout << "test_plate_recognize" << endl;
+
+	Mat src = imread("D:/Project/PRDemo/x64/Debug/resources/image/plate_recognize.jpg");
+	Mat grayImage;
+	if (src.type() == CV_8UC1)
+	{
+
+	}
+	else
+	{
+		cvtColor(src, grayImage, COLOR_RGB2GRAY);
+	}
+	
+
+	CPlateRecognize pr;
+	pr.setLifemode(true);
+	pr.setDebug(false);
+	pr.setMaxPlates(4);
+	//pr.setDetectType(PR_DETECT_COLOR | PR_DETECT_SOBEL);
+	pr.setDetectType(easypr::PR_DETECT_CMSER);
+
+	//vector<string> plateVec;
+	vector<CPlate> plateVec;
+	int result = pr.plateRecognize(src, plateVec);
+	OutputDebugStringA("output debug string test");
+	//int result = pr.plateRecognizeAsText(src, plateVec);
+	if (result == 0) {
+		size_t num = plateVec.size();
+		for (size_t j = 0; j < num; j++) {
+			OutputDebugStringA(plateVec[j].getPlateStr().c_str());
+		}
+	}
+
+	
+
+	return result;
+}
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
@@ -64,6 +106,7 @@ BEGIN_MESSAGE_MAP(CPRDemoDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON1, &CPRDemoDlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -152,3 +195,10 @@ HCURSOR CPRDemoDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CPRDemoDlg::OnBnClickedButton1()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	test_plate_recognize();
+}
